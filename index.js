@@ -17,7 +17,6 @@ async function readToken() {
       const data = await fs.readFile('./token.txt', { encoding: 'utf8' });
       console.log(data);
       refreshToken = data;
-      console.log(refreshToken);
       getToken();
     } catch (err) {
       console.log(err);
