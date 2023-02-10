@@ -4,21 +4,8 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource;
 
-app.post('/api/receive', (req, res) => {
-  const jsonData = req.body;
-  console.log(jsonData);
-  console.log('Received JSON data:', jsonData);
-  
-  res.json({
-    message: 'JSON data received successfully!'
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
 
 // save new token
 async function writeToken() {
@@ -84,7 +71,6 @@ function loginBH(accessToken) {
         }
         return Promise.reject(response);
     }).then(function (data) {
-        console.log(data);
         bhRestToken = data.BhRestToken;
         sendPost(bhRestToken);
     
@@ -96,7 +82,6 @@ function loginBH(accessToken) {
 function sendPost() {
   
   let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Lead?BhRestToken=" + bhRestToken;
-  console.log("got here: " + queryURL);
 
   fetch(queryURL, {
       method: 'PUT',
@@ -107,17 +92,18 @@ function sendPost() {
       body: JSON.stringify(
         {
           "owner": {
-          "id": 14084
+          "id": 14084 // chris port account
           },
-             "firstName": "testfirst2",
-             "lastName": "testlast2",
-             "companyName": "test company name 2",
-             "email": "test@testtest2.com",
-             "phone": "111-222-3333",
-             "preferredContact": "Email",
+             "firstName": firstName,
+             "lastName": lastName,
+             "companyName": companyName,
+             "email": email,
+             "phone": phone,
+             "preferredContact": preferredContact,
              "isDeleted": false,
                 "status": "New Lead",
-             "type": "Unknown"
+             "type": "Unknown",
+             "leadSource": leadSource
           }
       )
   }).then(function (response) {
@@ -135,9 +121,33 @@ function sendPost() {
   });
 }
 
+app.use(express.json());
 
-// generates access token using refresh
-readToken();
+app.post('/api/receive', (req, res) => {
+  const jsonData = req.body;
+
+  // assign content
+  firstName = jsonData.firstName;
+  lastName = jsonData.lastName;
+  companyName = jsonData.companyName;
+  email = jsonData.email;
+  phone = jsonData.phone;
+  preferredContact = jsonData.preferredContact;
+  leadSource = jsonData.leadSource;
+
+  // generates access token using refresh
+  readToken();
+
+  res.json({
+    message: 'JSON data received successfully!'
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
 
 // login
 // loginBH();
