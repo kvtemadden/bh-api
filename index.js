@@ -73,6 +73,7 @@ function loginBH(accessToken) {
     }).then(function (data) {
         bhRestToken = data.BhRestToken;
         sendPost(bhRestToken);
+        console.log(data);
     
     }).catch(function (error) {
         console.warn('Something went wrong w/login: ', error);
