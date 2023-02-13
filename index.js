@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 const express = require('express');
 const app = express();
 
-var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle;
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData;
 
 
 // save new token
@@ -104,12 +104,48 @@ function sendPost() {
                 "status": "New Lead",
              "type": "Unknown",
              "leadSource": leadSource,
-             "jobTitle": jobTitle
+             "role": jobTitle
           }
       )
   }).then(function (response) {
     console.log("bh response: " + response);
+    leadId = response.changedEntityId;
+    addNote();
+    
+    if (response.ok) {
+          return response.json();
+      }
+      return Promise.reject(response);
+  }).then(function (data) {
+      console.log(data);
+  
+  }).catch(function (error) {
+      console.warn('Something went wrong w/request: ', error);
+  });
+}
 
+function addNote(data) {
+  let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Note?BhRestToken=" + bhRestToken;
+
+  fetch(queryURL, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+      body: JSON.stringify(
+        {
+          "commentingPerson": { "id" : 14084},
+          "leads" : [ 
+                      { "id" : leadId}
+                      ],
+          "comments": formData,
+          "personReference": { "id" : 14084}
+          }
+      )
+  }).then(function (response) {
+    console.log("bh response: " + response);
+    
     if (response.ok) {
           return response.json();
       }
@@ -136,6 +172,7 @@ app.post('/api/receive', (req, res) => {
   preferredContact = jsonData.preferredContact;
   leadSource = jsonData.leadSource;
   jobTitle = jsonData.jobTitle;
+  formData = jsonData.formData;
 
   // generates access token using refresh
   readToken();
