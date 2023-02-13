@@ -2,7 +2,6 @@ var refreshToken, bhRestToken;
 const fs = require('fs/promises');
 const express = require('express');
 const app = express();
-const PORT = 3000;
 
 var firstName, lastName, companyName, email, phone, preferredContact, leadSource;
 
@@ -144,8 +143,8 @@ app.post('/api/receive', (req, res) => {
   });
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(process.env.PORT || 3000, () => { 
+  console.log("Express server listening on port %d in %s mode"); 
 });
 
 
