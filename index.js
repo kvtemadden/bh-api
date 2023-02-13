@@ -2,7 +2,7 @@ var refreshToken, bhRestToken;
 const fs = require('fs/promises');
 const express = require('express');
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
 var firstName, lastName, companyName, email, phone, preferredContact, leadSource;
 
@@ -144,7 +144,7 @@ app.post('/api/receive', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT || 5000, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
