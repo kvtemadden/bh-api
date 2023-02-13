@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 const express = require('express');
 const app = express();
 
-var firstName, lastName, companyName, email, phone, preferredContact, leadSource;
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle;
 
 
 // save new token
@@ -103,7 +103,8 @@ function sendPost() {
              "isDeleted": false,
                 "status": "New Lead",
              "type": "Unknown",
-             "leadSource": leadSource
+             "leadSource": leadSource,
+             "jobTitle": jobTitle
           }
       )
   }).then(function (response) {
@@ -134,6 +135,7 @@ app.post('/api/receive', (req, res) => {
   phone = jsonData.phone;
   preferredContact = jsonData.preferredContact;
   leadSource = jsonData.leadSource;
+  jobTitle = jsonData.jobTitle;
 
   // generates access token using refresh
   readToken();
