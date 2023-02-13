@@ -1,6 +1,8 @@
 var refreshToken, bhRestToken;
 const fs = require('fs/promises');
 const express = require('express');
+const { first } = require('rxjs');
+const { json } = require('body-parser');
 const app = express();
 
 var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData;
@@ -96,6 +98,7 @@ function sendPost() {
           },
              "firstName": firstName,
              "lastName": lastName,
+             "name": firstName + " " + lastName,
              "companyName": companyName,
              "email": email,
              "phone": phone,
@@ -104,20 +107,27 @@ function sendPost() {
                 "status": "New Lead",
              "type": "Unknown",
              "leadSource": leadSource,
+             "address": {
+                "city": leadCity,
+                "countryID": 2359
+             },
              "role": jobTitle
           }
       )
   }).then(function (response) {
     console.log("bh response: " + response);
-    leadId = response.changedEntityId;
-    addNote();
+
     
     if (response.ok) {
           return response.json();
+
       }
       return Promise.reject(response);
   }).then(function (data) {
       console.log(data);
+      leadId = data.changedEntityId;
+      console.log("lead id: " + leadId);
+      addNote();
   
   }).catch(function (error) {
       console.warn('Something went wrong w/request: ', error);
@@ -154,7 +164,7 @@ function addNote(data) {
       console.log(data);
   
   }).catch(function (error) {
-      console.warn('Something went wrong w/request: ', error);
+      console.warn('Something went wrong w/note: ', error);
   });
 }
 
@@ -173,6 +183,7 @@ app.post('/api/receive', (req, res) => {
   leadSource = jsonData.leadSource;
   jobTitle = jsonData.jobTitle;
   formData = jsonData.formData;
+  leadCity = jsonData.leadCity;
 
   // generates access token using refresh
   readToken();
