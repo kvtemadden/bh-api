@@ -1,57 +1,35 @@
 var refreshToken, bhRestToken;
 const fs = require('fs/promises');
 const express = require('express');
-const { first } = require('rxjs');
-const { json } = require('body-parser');
 const app = express();
+require('dotenv').config();
 
 var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData;
 
-
-// save new token
-async function writeToken() {
-    try {
-      const content = refreshToken;
-      await fs.writeFile('./token.txt', content);
-    } catch (err) {
-      console.log("this is the write error: " + err);
-    }
-  }
-
-// read current token
-async function readToken() {
-    try {
-      const data = await fs.readFile('./token.txt', { encoding: 'utf8' });
-      console.log(data);
-      refreshToken = data;
-      getToken();
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
 function getToken() {
 // get new access token using refresh
-let queryURL = "https://auth-emea.bullhornstaffing.com/oauth/token?grant_type=refresh_token&refresh_token=" + refreshToken + "&client_id=8d604de2-62b8-426a-89f8-c1655f6f7c6c&client_secret=bexWfa8VMu6TJO79IV257g0h";
+let queryURL = "https://auth-emea.bullhornstaffing.com/oauth/token?grant_type=refresh_token&refresh_token=" + process.env.TOKEN + "&client_id=8d604de2-62b8-426a-89f8-c1655f6f7c6c&client_secret=bexWfa8VMu6TJO79IV257g0h";
 
+// call to bullhorn to get access token
 fetch(queryURL, {
 	method: 'POST'
 }).then(function (response) {
-	if (response.ok) {
+	
+  if (response.ok) {
 		return response.json();
 	}
+  
 	return Promise.reject(response);
+
 }).then(function (data) {
-	console.log(data);
     
     // update refresh token
     refreshToken = data.refresh_token;
 
     // store for next use
-    writeToken();
+    process.env.TOKEN = refreshToken;
     
     // make request
-    console.log("rest token: " + data.access_token);
     loginBH(data.access_token);
 
 }).catch(function (error) {
@@ -62,8 +40,7 @@ fetch(queryURL, {
 function loginBH(accessToken) {
 
     let queryURL = "https://rest-emea.bullhornstaffing.com/rest-services/login?version=*&access_token=" + accessToken;
-    console.log("access url: " + queryURL);
-
+    
     fetch(queryURL, {
         method: 'POST'
     }).then(function (response) {
@@ -72,10 +49,13 @@ function loginBH(accessToken) {
         }
         return Promise.reject(response);
     }).then(function (data) {
-        bhRestToken = data.BhRestToken;
-        sendPost(bhRestToken);
-        console.log(data);
-    
+
+      // set new refresh value
+      bhRestToken = data.BhRestToken;
+
+      // send content to bh
+      sendPost(bhRestToken);  
+
     }).catch(function (error) {
         console.warn('Something went wrong w/login: ', error);
     });
@@ -115,26 +95,27 @@ function sendPost() {
           }
       )
   }).then(function (response) {
-    console.log("bh response: " + response);
-
-    
+     
     if (response.ok) {
           return response.json();
 
       }
       return Promise.reject(response);
   }).then(function (data) {
-      console.log(data);
-      leadId = data.changedEntityId;
-      console.log("lead id: " + leadId);
-      addNote();
+    
+    // lead to assign note to
+    leadId = data.changedEntityId;
+    
+    // add note content (form content)
+    addNote();
   
   }).catch(function (error) {
       console.warn('Something went wrong w/request: ', error);
   });
 }
 
-function addNote(data) {
+// adding note to the lead
+function addNote() {
   let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Note?BhRestToken=" + bhRestToken;
 
   fetch(queryURL, {
@@ -186,7 +167,7 @@ app.post('/api/receive', (req, res) => {
   leadCity = jsonData.leadCity;
 
   // generates access token using refresh
-  readToken();
+  getToken();
 
   res.json({
     message: 'JSON data received successfully!'
@@ -194,10 +175,5 @@ app.post('/api/receive', (req, res) => {
 });
 
 app.listen(process.env.PORT || 3000, () => { 
-  console.log("Express server listening on port %d in %s mode"); 
+  console.log("Express server listening"); 
 });
-
-
-
-// login
-// loginBH();
