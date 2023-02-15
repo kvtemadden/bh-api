@@ -102,7 +102,7 @@ function sendPost() {
       }
       return Promise.reject(response);
   }).then(function (data) {
-    
+    console.log(data);
     // lead to assign note to
     leadId = data.changedEntityId;
     
