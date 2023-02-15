@@ -22,13 +22,14 @@ fetch(queryURL, {
 	return Promise.reject(response);
 
 }).then(function (data) {
-    
+    console.log(data);
+
     // update refresh token
     refreshToken = data.refresh_token;
 
     // store for next use
     process.env.TOKEN = refreshToken;
-    
+    console.log(process.env.TOKEN);
     // make request
     loginBH(data.access_token);
 
@@ -50,9 +51,10 @@ function loginBH(accessToken) {
         return Promise.reject(response);
     }).then(function (data) {
 
+      console.log(data);
       // set new refresh value
       bhRestToken = data.BhRestToken;
-
+          
       // send content to bh
       sendPost(bhRestToken);  
 
@@ -131,7 +133,8 @@ function addNote() {
                       { "id" : leadId}
                       ],
           "comments": formData,
-          "personReference": { "id" : 14084}
+          "action": "Other",
+          "personReference": { "id" : 14836}
           }
       )
   }).then(function (response) {
