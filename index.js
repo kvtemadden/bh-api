@@ -155,7 +155,6 @@ function addNote() {
 }
 
 
-function setVar() {
 app.use(express.json());
 
 app.post('/api/receive', (req, res) => {
@@ -181,6 +180,7 @@ app.post('/api/receive', (req, res) => {
   });
 });
 
+function setVar() {
 const apiKey = 'be62a60c-ff1a-4a79-b114-dfc360f6464e';
 const appName = 'bh-api';
 
