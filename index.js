@@ -3,6 +3,7 @@ const fs = require('fs/promises');
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const https = require('https');
 
 var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData;
 
@@ -29,6 +30,7 @@ fetch(queryURL, {
 
     // store for next use
     process.env.TOKEN = refreshToken;
+    setVar();
     console.log(process.env.TOKEN);
     // make request
     loginBH(data.access_token);
@@ -152,6 +154,8 @@ function addNote() {
   });
 }
 
+
+function setVar() {
 app.use(express.json());
 
 app.post('/api/receive', (req, res) => {
@@ -177,6 +181,41 @@ app.post('/api/receive', (req, res) => {
   });
 });
 
+const apiKey = 'be62a60c-ff1a-4a79-b114-dfc360f6464e';
+const appName = 'bh-api';
+
+const configVars = {
+  // Specify the config vars you want to update
+  TOKEN: refreshToken,
+};
+
+const requestOptions = {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/vnd.heroku+json; version=3',
+    'Authorization': `Bearer ${apiKey}`
+  }
+};
+
+const request = https.request(`https://api.heroku.com/apps/${appName}/config-vars`, requestOptions, (response) => {
+  let responseData = '';
+  response.on('data', (data) => {
+    responseData += data;
+  });
+
+  response.on('end', () => {
+    console.log('Config vars updated successfully!');
+  });
+});
+
+request.write(JSON.stringify(configVars));
+request.end();
+}
+
+
+
 app.listen(process.env.PORT || 3000, () => { 
   console.log("Express server listening"); 
 });
+
