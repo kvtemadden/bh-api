@@ -65,7 +65,7 @@ function loginBH(accessToken) {
 }
 
 function sendCompany() {
-  let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Company?BhRestToken=" + bhRestToken;
+  let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/ClientCorporation?BhRestToken=" + bhRestToken;
 
   fetch(queryURL, {
       method: 'PUT',
