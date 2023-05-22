@@ -145,7 +145,7 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
     leadId = data.changedEntityId;
     
     // add note content (form content)
-    addNote(bhRestToken);
+    addNote(bhRestToke, leadId);
   
   }).catch(function (error) {
       console.warn('Something went wrong w/request: ', error);
