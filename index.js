@@ -99,7 +99,7 @@ function sendCompany() {
     sendContact(corpID, bhRestToken);
   
   }).catch(function (error) {
-      console.warn('Something went wrong w/note: ', error);
+      console.warn('Something went wrong w/company: ', error);
   });
 }
 
