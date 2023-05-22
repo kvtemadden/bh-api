@@ -142,10 +142,10 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
   }).then(function (data) {
     (data);
     // lead to assign note to
-    leadId = data.changedEntityId;
+    contactID = data.changedEntityId;
     
     // add note content (form content)
-    addNote(bhRestToken, leadId);
+    addNote(bhRestToken, contactID);
   
   }).catch(function (error) {
       console.warn('Something went wrong w/request: ', error);
@@ -153,7 +153,7 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
 }
 
 // adding note to the lead
-function addNote(bhRestToken, leadId) {
+function addNote(bhRestToken, contactID) {
   let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Note?BhRestToken=" + bhRestToken;
 
   fetch(queryURL, {
@@ -166,7 +166,7 @@ function addNote(bhRestToken, leadId) {
         {
           "commentingPerson": { "id" : 14084},
           "clientContacts" : [ 
-                      { "id" : leadId}
+                      { "id" : contactID }
                       ],
           "comments": formData,
           "personReference": { "id" : 14836}
