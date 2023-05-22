@@ -168,7 +168,7 @@ function addNote(bhRestToken, contactID) {
           "clientContacts" : [ 
                       { "id" : contactID }
                       ],
-          "comments": "this is a test",
+          "comments": formData,
           "personReference": { "id" : 14836}
           }
       )
