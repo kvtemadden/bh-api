@@ -153,7 +153,7 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
 }
 
 // adding note to the lead
-function addNote(bhRestToken) {
+function addNote(bhRestToken, leadId) {
   let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/Note?BhRestToken=" + bhRestToken;
 
   fetch(queryURL, {
@@ -169,7 +169,6 @@ function addNote(bhRestToken) {
                       { "id" : leadId}
                       ],
           "comments": formData,
-          "action": "Other",
           "personReference": { "id" : 14836}
           }
       )
