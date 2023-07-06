@@ -67,26 +67,27 @@ function loginBH(accessToken) {
 const sendCompany = () => {
   const queryURL = `https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/ClientCorporation?BhRestToken=${bhRestToken}`;
 
+  const body = {
+    "name": companyName,
+    "numEmployees": 0,
+    "annualRevenue": 0,
+    "status": status,
+    "address": {
+      "city": leadCity,
+      "countryID": 2359
+    }
+  };
+
   fetch(queryURL, {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      "name": companyName,
-      "numEmployees": 0,
-      "annualRevenue": 0,
-      "status": status,
-      "address": {
-        "city": leadCity,
-        "countryID": 2359
-      }
-    })
+    body: JSON.stringify(body),
   })
     .then(response => {
       console.log("bh response:", response);
-      console.log(body, response, queryURL);
 
       if (response.ok) {
         return response.json();
