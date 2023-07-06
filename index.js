@@ -5,7 +5,7 @@ const app = express();
 require('dotenv').config();
 const https = require('https');
 
-var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData;
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData, status;
 
 function getToken() {
 // get new access token using refresh
@@ -77,7 +77,7 @@ const sendCompany = () => {
       "name": companyName,
       "numEmployees": 0,
       "annualRevenue": 0,
-      "status": "New Lead",
+      "status": status,
       "address": {
         "city": leadCity,
         "countryID": 2359
@@ -126,7 +126,7 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
           "phone": phone,
           "preferredContact": preferredContact,
           "isDeleted": false,
-          "status": "New Lead",
+          "status": status,
           "type": "Unknown",
           "source": leadSource,
           "address": {
@@ -207,6 +207,7 @@ app.post('/api/receive', (req, res) => {
   jobTitle = jsonData.jobTitle;
   formData = jsonData.formData;
   leadCity = jsonData.leadCity;
+  status = jsonData.status;
 
   // generates access token using refresh
   getToken();
