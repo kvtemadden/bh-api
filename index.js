@@ -9,7 +9,7 @@ var firstName, lastName, companyName, email, phone, preferredContact, leadSource
 
 function getToken() {
 // get new access token using refresh
-let queryURL = "https://auth-emea.bullhornstaffing.com/oauth/token?grant_type=refresh_token&refresh_token=" + process.env.TOKEN + "&client_id=8d604de2-62b8-426a-89f8-c1655f6f7c6c&client_secret=bexWfa8VMu6TJO79IV257g0h";
+let queryURL = "https://auth-emea.bullhornstaffing.com/oauth/token?grant_type=refresh_token&refresh_token=" + process.env.TOKEN + "&client_id=" + process.env.CLIENT_ID + "&client_secret=" + process.env.CLIENT_SECRET;
 
 // call to bullhorn to get access token
 fetch(queryURL, {
@@ -64,44 +64,47 @@ function loginBH(accessToken) {
     });
 }
 
-function sendCompany() {
-  let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/ClientCorporation?BhRestToken=" + bhRestToken;
+const sendCompany = () => {
+  const queryURL = `https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/ClientCorporation?BhRestToken=${bhRestToken}`;
 
   fetch(queryURL, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
     },
-      body: JSON.stringify(
-        {
-          "name": companyName,
-          "status": "New Lead",
-          "address": {
-             "city": leadCity,
-             "countryID": 2359
-          }
+    body: JSON.stringify({
+      "name": companyName,
+      "numEmployees": 0,
+      "annualRevenue": 0,
+      "status": "New Lead",
+      "address": {
+        "city": leadCity,
+        "countryID": 2359
       }
-      )
-  }).then(function (response) {
-    ("bh response: " + response);
-    
-    if (response.ok) {
-          return response.json();
+    })
+  })
+    .then(response => {
+      console.log("bh response:", response);
+      console.log(body, response, queryURL);
+
+      if (response.ok) {
+        return response.json();
       }
       return Promise.reject(response);
-  }).then(function (data) {
-      (data);
-    // lead to assign note to
-    corpID = data.changedEntityId;
-    
-    // add note content (form content)
-    sendContact(corpID, bhRestToken);
-  
-  }).catch(function (error) {
-      console.warn('Something went wrong w/company: ', error);
-  });
-}
+    })
+    .then(data => {
+      console.log(data);
+      // lead to assign note to
+      corpID = data.changedEntityId;
+
+      // add note content (form content)
+      sendContact(corpID, bhRestToken);
+    })
+    .catch(error => {
+      console.warn('Something went wrong w/company:', error);
+    });
+};
 
 
 function sendContact(corpID, bhRestToken) {
@@ -123,7 +126,7 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
           "phone": phone,
           "preferredContact": preferredContact,
           "isDeleted": false,
-             "status": "New Lead",
+          "status": "New Lead",
           "type": "Unknown",
           "source": leadSource,
           "address": {
@@ -248,7 +251,7 @@ request.end();
 
 
 
-app.listen(process.env.PORT || 3000, () => { 
+app.listen(process.env.PORT || 3001, () => { 
   ("Express server listening"); 
 });
 
