@@ -5,7 +5,7 @@ const app = express();
 require('dotenv').config();
 const https = require('https');
 
-var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData, status;
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData, status, leadCity;
 
 function getToken() {
 // get new access token using refresh
