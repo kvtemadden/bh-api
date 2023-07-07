@@ -54,6 +54,7 @@ function loginBH(accessToken) {
 
       (data);
       // set new refresh value
+      console.log(data);
       bhRestToken = data.BhRestToken;
           
       // send content to bh
