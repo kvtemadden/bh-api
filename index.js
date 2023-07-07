@@ -54,7 +54,6 @@ function loginBH(accessToken) {
 
       (data);
       // set new refresh value
-      console.log(data);
       bhRestToken = data.BhRestToken;
           
       // send content to bh
@@ -67,7 +66,6 @@ function loginBH(accessToken) {
 
 const sendCompany = () => {
   const queryURL = `https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/ClientCorporation?BhRestToken=${bhRestToken}`;
-  console.log("queryURL:", queryURL);
 
   const body = {
     "name": companyName,
