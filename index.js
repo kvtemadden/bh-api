@@ -5,7 +5,7 @@ const app = express();
 require('dotenv').config();
 const https = require('https');
 
-var firstName, lastName, companyName, email, phone, preferredContact, leadSource, jobTitle, leadId, formData, status, leadCity;
+var firstName, lastName, companyName, email, phone, preferredContact, leadSource, formData, status, leadCity;
 
 function getToken() {
 // get new access token using refresh
@@ -133,7 +133,8 @@ let queryURL = "https://rest21.bullhornstaffing.com/rest-services/8yh2c1/entity/
           "address": {
              "city": leadCity,
              "countryID": 2359
-          }
+          },
+          "customText1": gclid,
        }
       )
   }).then(function (response) {
@@ -209,6 +210,7 @@ app.post('/api/receive', (req, res) => {
   formData = jsonData.formData;
   leadCity = jsonData.leadCity;
   status = jsonData.status;
+  gclid = jsonData.gclid;
 
   // generates access token using refresh
   getToken();
