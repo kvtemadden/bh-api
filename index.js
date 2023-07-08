@@ -203,7 +203,7 @@ app.post('/api/receive', (req, res) => {
   // assign content
   firstName = jsonData.firstName;
   lastName = jsonData.lastName;
-  companyName = jsonData.name;
+  companyName = jsonData.companyName;
   email = jsonData.email;
   phone = jsonData.phone;
   preferredContact = jsonData.preferredContact;
