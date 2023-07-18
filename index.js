@@ -439,14 +439,14 @@ app.post("/api/broadbean", async (req, res) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`);
+    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`, process.env.WEBFLOW_TOKEN);
     console.log("Archived items older than 28 days - CB");
   } catch (error) {
     console.error(error);
   }
 
   try {
-    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`);
+    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`, process.env.WEBFLOW_TOKEN_T4C);
     console.log("Archived items older than 28 days - T4C");
   } catch (error) {
     console.error(error);
@@ -455,12 +455,12 @@ cron.schedule("0 0 * * *", async () => {
 
 // WEBFLOW - REMOVE AFTER 28 DAYS
 
-async function archiveItemsOlderThan28Days(link) {
+async function archiveItemsOlderThan28Days(link, wft) {
   try {
     const url = link;
     const headers = {
       accept: "application/json",
-      authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
+      authorization: `Bearer ${wft}`,
     };
     const response = await axios.get(url, { headers });
     const items = response.data.items;
@@ -473,7 +473,7 @@ async function archiveItemsOlderThan28Days(link) {
     for (const item of items) {
       const publishedOn = new Date(item.published_on);
       if (publishedOn <= twentyEightDaysAgo) {
-        await archiveItem(item._id, link);
+        await archiveItem(item._id, link, wft);
       }
     }
   } catch (error) {
@@ -481,7 +481,7 @@ async function archiveItemsOlderThan28Days(link) {
   }
 }
 
-async function archiveItem(itemId, link) {
+async function archiveItem(itemId, link, wft) {
   try {
     const url = link + itemId;
     const headers = {
