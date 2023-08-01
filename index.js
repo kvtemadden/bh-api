@@ -6,6 +6,7 @@ var https = require("https");
 var Webflow = require("webflow-api");
 const cron = require("node-cron");
 const axios = require("axios");
+const moment = require("moment");
 
 
 var firstName,
@@ -383,6 +384,7 @@ async function createTempsJob() {
               : "Temporary",
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
+          "date-published": moment().format("MM/DD/YYYY"),
         },
       }),
     };
