@@ -416,6 +416,8 @@ app.post("/api/broadbean", async (req, res) => {
   jobTypeId = jobData.job_type_id;
   aplitrakEmail = jobData.aplitrak_email;
 
+  console.log(req);
+
   if (!jobTitle) throw new Error("Job title is required");
 
   await checkWebflowItem();
