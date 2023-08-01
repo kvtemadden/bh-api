@@ -402,7 +402,7 @@ async function createTempsJob() {
 // BROADBEAN
 
 app.post("/api/broadbean", async (req, res) => {
-  var jobData = req.query;
+  var jobData = req.query === {} ? req.body : req.query;
   jobRef = jobData.job_ref;
   salaryFrom = jobData.salary_from;
   salaryTo = jobData.salary_to;
@@ -415,8 +415,6 @@ app.post("/api/broadbean", async (req, res) => {
   jobDescription = jobData.job_description;
   jobTypeId = jobData.job_type_id;
   aplitrakEmail = jobData.aplitrak_email;
-
-  console.log(jobData);
 
   if (!jobTitle) throw new Error("Job title is required");
 
