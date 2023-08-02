@@ -420,7 +420,7 @@ app.post("/api/broadbean", async (req, res) => {
   jobDescription = jobData.job_description;
   jobTypeId = jobData.job_type_id;
   aplitrakEmail = jobData.aplitrak_email;
-  today = moment().format("MM/DD/YYYY");
+  today = moment().defaultFormat;
 
   console.log(today);
 
