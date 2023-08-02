@@ -34,7 +34,8 @@ var jobRef,
   url,
   exists,
   coburgJobCollection,
-  coburgJobs;
+  coburgJobs,
+  today;
 
 // WEBFLOW INIT
 
@@ -384,7 +385,7 @@ async function createTempsJob() {
               : "Temporary",
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
-          "date-published": moment().format("MM/DD/YYYY"),
+          "date-published": today,
         },
       }),
     };
@@ -419,8 +420,9 @@ app.post("/api/broadbean", async (req, res) => {
   jobDescription = jobData.job_description;
   jobTypeId = jobData.job_type_id;
   aplitrakEmail = jobData.aplitrak_email;
+  today = moment().format("MM/DD/YYYY");
 
-  console.log(req);
+  console.log(today);
 
   if (!jobTitle) throw new Error("Job title is required");
 
