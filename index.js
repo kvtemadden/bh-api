@@ -406,7 +406,7 @@ async function createTempsJob() {
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/api/broadbean", async (req, res) => {
-  var jobData = req.query === {} ? req.body : req.query;
+  var jobData = req.body === {} ? req.query : req.body;
   jobRef = jobData.job_ref;
   salaryFrom = jobData.salary_from;
   salaryTo = jobData.salary_to;
