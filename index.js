@@ -339,6 +339,7 @@ async function createWebflowItem() {
               : "Temporary",
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
+          "date-published": today,
         },
       }),
     };
