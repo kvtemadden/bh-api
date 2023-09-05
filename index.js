@@ -349,7 +349,7 @@ async function createWebflowItem() {
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        return {url: json.slug, id: json._id};
+        return {url: json.slug, id: json._id, site: "coburgbanks"};
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -396,7 +396,7 @@ async function createTempsJob() {
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        return {url: json.slug, id: json._id};
+        return {url: json.slug, id: json._id, site: "temps4care"};
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -436,6 +436,7 @@ app.post("/api/broadbean", async (req, res) => {
   if (createdWebflowUrl) {
     url = createdWebflowUrl.url;
     id = createdWebflowUrl.id;
+    site = createdWebflowUrl.site;
     
     var zapier = {
       method: "POST",
@@ -452,7 +453,7 @@ app.post("/api/broadbean", async (req, res) => {
     };
 
     fetch(process.env.ZAPIER_WEBHOOK, zapier);
-    
+
   } else {
     res.status(500).json({
       error: "An error occurred while creating the item in Webflow.",
