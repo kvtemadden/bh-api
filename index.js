@@ -336,7 +336,8 @@ async function createWebflowItem() {
               ? "Permanent"
               : jobTypeId === 2
               ? "Contract"
-              : "Temporary",
+              : jobTypeId === 3 ? 
+              "Temporary" : "Permanent",
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
@@ -344,7 +345,37 @@ async function createWebflowItem() {
       }),
     };
 
-    fetch(process.env.ZAPIER_WEBHOOK, {options, site: "coburgbanks"});
+    var zapier = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        fields: {
+          name: jobTitle,
+          _archived: false,
+          _draft: false,
+          salary: `£${salaryFrom} - £${salaryTo}`,
+          location: locationId,
+          sector: sectorId,
+          "job-description": jobDescription,
+          "job-type":
+            jobTypeId === 1
+              ? "Permanent"
+              : jobTypeId === 2
+              ? "Contract"
+              : jobTypeId === 3 ? 
+              "Temporary" : "Permanent",
+          "reply-email-address": aplitrakEmail,
+          "job-reference-number": jobRef,
+          "date-published": today,
+          site: "coburgbanks",
+        },
+      }),
+    };
+
+    fetch(process.env.ZAPIER_WEBHOOK, zapier);
 
     return fetch(url, options)
       .then((res) => res.json())
@@ -393,10 +424,37 @@ async function createTempsJob() {
       }),
     };
 
-    fetch(process.env.ZAPIER_WEBHOOK, {
-      options,
-      site: "temps4care",
-    });
+    var options = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        fields: {
+          name: jobTitle,
+          _archived: false,
+          _draft: false,
+          salary: `£${salaryFrom} - £${salaryTo}`,
+          location: locationId,
+          sector: sectorId,
+          "job-description": jobDescription,
+          "job-type":
+            jobTypeId === 1
+              ? "Permanent"
+              : jobTypeId === 2
+              ? "Contract"
+              : "Temporary",
+          "reply-email-address": aplitrakEmail,
+          "job-reference-number": jobRef,
+          "date-published": today,
+          site: "temps4care",
+        },
+      }),
+    };
+
+    fetch(process.env.ZAPIER_WEBHOOK, zapier);
+
 
     return fetch(url, options)
       .then((res) => res.json())
