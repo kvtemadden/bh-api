@@ -344,6 +344,8 @@ async function createWebflowItem() {
       }),
     };
 
+    fetch(process.env.ZAPIER_WEBHOOK, options);
+
     return fetch(url, options)
       .then((res) => res.json())
       .then((json) => {
