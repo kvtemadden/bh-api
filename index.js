@@ -345,43 +345,11 @@ async function createWebflowItem() {
       }),
     };
 
-    var zapier = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        fields: {
-          name: jobTitle,
-          _archived: false,
-          _draft: false,
-          salary: `£${salaryFrom} - £${salaryTo}`,
-          location: locationId,
-          sector: sectorId,
-          "job-description": jobDescription,
-          "job-type":
-            jobTypeId === 1
-              ? "Permanent"
-              : jobTypeId === 2
-              ? "Contract"
-              : jobTypeId === 3 ? 
-              "Temporary" : "Permanent",
-          "reply-email-address": aplitrakEmail,
-          "job-reference-number": jobRef,
-          "date-published": today,
-          site: "coburgbanks",
-        },
-      }),
-    };
-
-    fetch(process.env.ZAPIER_WEBHOOK, zapier);
-
     return fetch(url, options)
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        return json.slug;
+        return {url: json.slug, id: json._id};
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -424,42 +392,11 @@ async function createTempsJob() {
       }),
     };
 
-    var options = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        fields: {
-          name: jobTitle,
-          _archived: false,
-          _draft: false,
-          salary: `£${salaryFrom} - £${salaryTo}`,
-          location: locationId,
-          sector: sectorId,
-          "job-description": jobDescription,
-          "job-type":
-            jobTypeId === 1
-              ? "Permanent"
-              : jobTypeId === 2
-              ? "Contract"
-              : "Temporary",
-          "reply-email-address": aplitrakEmail,
-          "job-reference-number": jobRef,
-          "date-published": today,
-          site: "temps4care",
-        },
-      }),
-    };
-
-    fetch(process.env.ZAPIER_WEBHOOK, zapier);
-
-
     return fetch(url, options)
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
+        return {url: json.slug, id: json._id};
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -497,7 +434,25 @@ app.post("/api/broadbean", async (req, res) => {
   createTempsJob();
 
   if (createdWebflowUrl) {
-    url = createdWebflowUrl;
+    url = createdWebflowUrl.url;
+    id = createdWebflowUrl.id;
+    
+    var zapier = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+          id: id,
+          title: jobTitle,
+          site: "coburgbanks",
+        },
+      ),
+    };
+
+    fetch(process.env.ZAPIER_WEBHOOK, zapier);
+    
   } else {
     res.status(500).json({
       error: "An error occurred while creating the item in Webflow.",
