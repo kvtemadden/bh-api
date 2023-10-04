@@ -119,12 +119,12 @@ var sendCompany = () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: companyName,
+      name: companyName ?? "",
       numEmployees: 0,
       annualRevenue: 0,
-      status: status,
+      status: "Active",
       address: {
-        city: leadCity,
+        city: leadCity ?? "",
         countryID: 2359,
       },
     }),
@@ -167,7 +167,7 @@ function sendContact(corpID, bhRestToken) {
       phone: phone,
       preferredContact: preferredContact,
       isDeleted: false,
-      status: status,
+      status: "New - Lead",
       type: "Unknown",
       source: leadSource,
       address: {
@@ -192,7 +192,7 @@ function sendContact(corpID, bhRestToken) {
       addNote(bhRestToken, contactID);
     })
     .catch(function (error) {
-      console.warn("Something went wrong w/request: ", error);
+      console.warn("Something went wrong w/contact: ", error);
     });
 }
 
