@@ -8,7 +8,6 @@ const cron = require("node-cron");
 const axios = require("axios");
 const moment = require("moment");
 
-
 var firstName,
   lastName,
   companyName,
@@ -245,7 +244,7 @@ app.post("/api/receive", (req, res) => {
   jobTitle = jsonData.jobTitle;
   formData = jsonData.formData;
   leadCity = jsonData.city;
-  status = jsonData.status;
+  status = "Lead - New";
   gclid = jsonData.gclid;
 
   // generates access token using refresh
@@ -336,8 +335,9 @@ async function createWebflowItem() {
               ? "Permanent"
               : jobTypeId === 2
               ? "Contract"
-              : jobTypeId === 3 ? 
-              "Temporary" : "Permanent",
+              : jobTypeId === 3
+              ? "Temporary"
+              : "Permanent",
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
@@ -349,7 +349,7 @@ async function createWebflowItem() {
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        return {url: json.slug, id: json._id, site: "coburgbanks"};
+        return { url: json.slug, id: json._id, site: "coburgbanks" };
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -396,7 +396,7 @@ async function createTempsJob() {
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
-        return {url: json.slug, id: json._id, site: "temps4care"};
+        return { url: json.slug, id: json._id, site: "temps4care" };
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -437,7 +437,7 @@ app.post("/api/broadbean", async (req, res) => {
     url = createdWebflowUrl.url;
     id = createdWebflowUrl.id;
     site = createdWebflowUrl.site;
-    
+
     var zapier = {
       method: "POST",
       headers: {
@@ -445,15 +445,13 @@ app.post("/api/broadbean", async (req, res) => {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-          id: id,
-          title: jobTitle,
-          site: "coburgbanks",
-        },
-      ),
+        id: id,
+        title: jobTitle,
+        site: "coburgbanks",
+      }),
     };
 
     fetch(process.env.ZAPIER_WEBHOOK, zapier);
-
   } else {
     res.status(500).json({
       error: "An error occurred while creating the item in Webflow.",
@@ -469,14 +467,20 @@ app.post("/api/broadbean", async (req, res) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`, process.env.WEBFLOW_TOKEN);
+    await archiveItemsOlderThan28Days(
+      `https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`,
+      process.env.WEBFLOW_TOKEN
+    );
     console.log("Archived items older than 28 days - CB");
   } catch (error) {
     console.error(error);
   }
 
   try {
-    await archiveItemsOlderThan28Days(`https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`, process.env.WEBFLOW_TOKEN_T4C);
+    await archiveItemsOlderThan28Days(
+      `https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`,
+      process.env.WEBFLOW_TOKEN_T4C
+    );
     console.log("Archived items older than 28 days - T4C");
   } catch (error) {
     console.error(error);
