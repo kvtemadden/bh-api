@@ -209,7 +209,7 @@ function addNote(bhRestToken, contactID) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      commentingPerson: { id: 14084 },
+      commentingPerson: { id: 13095 },
       clientContacts: [{ id: contactID }],
       comments: formData,
       personReference: { id: 14836 },
