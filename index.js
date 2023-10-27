@@ -212,7 +212,7 @@ function addNote(bhRestToken, contactID) {
       commentingPerson: { id: 13095 },
       clientContacts: [{ id: contactID }],
       comments: formData,
-      personReference: { id: 13095 },
+      personReference: { id: 16287 },
       action: status,
     }),
   })
