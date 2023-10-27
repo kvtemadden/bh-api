@@ -209,10 +209,10 @@ function addNote(bhRestToken, contactID) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      commentingPerson: { id: 17610 },
+      commentingPerson: { id: 14084 },
       clientContacts: [{ id: contactID }],
       comments: formData,
-      personReference: { id: 17610 },
+      personReference: { id: 14836 },
     }),
   })
     .then(function (response) {
