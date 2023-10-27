@@ -167,7 +167,7 @@ function sendContact(corpID, bhRestToken) {
       phone: phone,
       preferredContact: preferredContact,
       isDeleted: false,
-      status: "New - Lead",
+      status: "Lead - New",
       type: "Unknown",
       source: leadSource,
       address: {
@@ -209,10 +209,10 @@ function addNote(bhRestToken, contactID) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      commentingPerson: { id: 14084 },
+      commentingPerson: { id: 17610 },
       clientContacts: [{ id: contactID }],
       comments: formData,
-      personReference: { id: 14836 },
+      personReference: { id: 17610 },
     }),
   })
     .then(function (response) {
