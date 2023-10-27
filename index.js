@@ -212,7 +212,8 @@ function addNote(bhRestToken, contactID) {
       commentingPerson: { id: 13095 },
       clientContacts: [{ id: contactID }],
       comments: formData,
-      personReference: { id: 14836 },
+      personReference: { id: 13095 },
+      action: status,
     }),
   })
     .then(function (response) {
@@ -244,7 +245,7 @@ app.post("/api/receive", (req, res) => {
   jobTitle = jsonData.jobTitle;
   formData = jsonData.formData;
   leadCity = jsonData.city;
-  status = "Lead - New";
+  status = jsonData.status;
   gclid = jsonData.gclid;
 
   // generates access token using refresh
