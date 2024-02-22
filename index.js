@@ -49,7 +49,7 @@ function getToken() {
   // get new access token using refresh
   let queryURL =
     "https://auth-emea.bullhornstaffing.com/oauth/token?grant_type=refresh_token&refresh_token=" +
-    process.env.TOKEN +
+    process.env.REFRESH_TOKEN +
     "&client_id=" +
     process.env.CLIENT_ID +
     "&client_secret=" +
@@ -71,7 +71,7 @@ function getToken() {
       refreshToken = data.refresh_token;
 
       // store for next use
-      process.env.TOKEN = refreshToken;
+      process.env.REFRESH_TOKEN = refreshToken;
       setVar();
 
       // make request
