@@ -342,6 +342,10 @@ async function createWebflowItem() {
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
+          slug:
+            jobTitle.replace(/\s+/g, "-").toLowerCase() +
+            "-" +
+            Math.floor(Math.random() * 1000),
         },
       }),
     };
@@ -389,6 +393,10 @@ async function createTempsJob() {
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
+          slug:
+            jobTitle.replace(/\s+/g, "-").toLowerCase() +
+            "-" +
+            Math.floor(Math.random() * 1000),
         },
       }),
     };
@@ -425,8 +433,6 @@ app.post("/api/broadbean", async (req, res) => {
   jobTypeId = jobData.job_type_id;
   aplitrakEmail = jobData.aplitrak_email;
   today = moment.utc().format();
-
-  console.log(today);
 
   if (!jobTitle) throw new Error("Job title is required");
 
