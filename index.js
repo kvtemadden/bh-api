@@ -40,11 +40,10 @@ var jobRef,
 
 var webflow = new WebflowClient({
   accessToken: process.env.WEBFLOW_TOKEN,
-  version: "1.0.0",
-  headers: {
-    "User-Agent": "My Webflow App / 1.0",
-  },
+  accept: "application/json",
+  "content-type": "application/json",
 });
+
 function getToken() {
   // get new access token using refresh
   let queryURL =
@@ -295,10 +294,26 @@ function setVar() {
 // WEBFLOW
 
 async function checkWebflowItem() {
-  coburgJobCollection = await webflow.collection({
-    collectionId: process.env.WEBFLOW_CB_COLLECTION_ID,
-  });
-  coburgJobs = await coburgJobCollection.items();
+  const options = {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: "Bearer " + process.env.WEBFLOW_TOKEN,
+    },
+  };
+
+  coburgJobCollection = await fetch(
+    `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`,
+    options
+  )
+    .then((res) => res.json())
+    .then((json) => {
+      coburgJobs = json.items;
+    })
+    .catch((err) => {
+      console.error("error:" + err);
+      return null;
+    });
 
   // if job exists in coburg site based on comparison of job title, job salary and job location, return true
   var coburgJobExists = coburgJobs.some((coburgJob) => {
@@ -315,6 +330,12 @@ async function checkWebflowItem() {
 async function createWebflowItem() {
   if (!exists) {
     var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items?live=true`;
+
+    const itemSlug =
+      jobTitle.replace(/\s+/g, "-").toLowerCase() +
+      "-" +
+      Math.floor(Math.random() * 1000);
+
     var options = {
       method: "POST",
       headers: {
@@ -323,7 +344,7 @@ async function createWebflowItem() {
         authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
       },
       body: JSON.stringify({
-        fields: {
+        fieldData: {
           name: jobTitle,
           _archived: false,
           _draft: false,
@@ -342,10 +363,7 @@ async function createWebflowItem() {
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
-          slug:
-            jobTitle.replace(/\s+/g, "-").toLowerCase() +
-            "-" +
-            Math.floor(Math.random() * 1000),
+          slug: itemSlug,
         },
       }),
     };
@@ -353,8 +371,13 @@ async function createWebflowItem() {
     return fetch(url, options)
       .then((res) => res.json())
       .then((json) => {
-        console.log(json);
-        return { url: json.slug, id: json._id, site: "coburgbanks" };
+        publishWebflowItem(json.id);
+
+        return {
+          url: itemSlug,
+          id: json.id,
+          site: "coburgbanks",
+        };
       })
       .catch((err) => {
         console.error("error:" + err);
@@ -367,7 +390,13 @@ async function createWebflowItem() {
 
 async function createTempsJob() {
   if (!exists && sectorId === "Social Care") {
+    const itemSlug =
+      jobTitle.replace(/\s+/g, "-").toLowerCase() +
+      "-" +
+      Math.floor(Math.random() * 1000);
+
     var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items?live=true`;
+
     var options = {
       method: "POST",
       headers: {
@@ -393,10 +422,7 @@ async function createTempsJob() {
           "reply-email-address": aplitrakEmail,
           "job-reference-number": jobRef,
           "date-published": today,
-          slug:
-            jobTitle.replace(/\s+/g, "-").toLowerCase() +
-            "-" +
-            Math.floor(Math.random() * 1000),
+          slug: itemSlug,
         },
       }),
     };
@@ -404,13 +430,49 @@ async function createTempsJob() {
     return fetch(url, options)
       .then((res) => res.json())
       .then((json) => {
-        console.log(json);
-        return { url: json.slug, id: json._id, site: "temps4care" };
+        publishWebflowItem(json.id);
+
+        return {
+          url: itemSlug,
+          id: json.id,
+          site: "temps4care",
+        };
       })
       .catch((err) => {
         console.error("error:" + err);
         return null;
       });
+  }
+}
+
+// PUBLISH WEBFLOW ITEM
+
+async function publishWebflowItem(itemId) {
+  try {
+    const url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items/publish`;
+    const options = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
+      },
+      body: JSON.stringify({
+        itemIds: [itemId],
+      }),
+    };
+
+    await fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => {
+        return "Published successfully";
+      })
+      .catch((err) => {
+        console.error("error:" + err);
+        return null;
+      });
+  } catch (error) {
+    throw new Error("Error publishing collection item:", error);
   }
 }
 
