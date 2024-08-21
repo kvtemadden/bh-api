@@ -3,7 +3,7 @@ var express = require("express");
 var app = express();
 require("dotenv").config();
 var https = require("https");
-var Webflow = require("webflow-api");
+var WebflowClient = require("webflow-api");
 const cron = require("node-cron");
 const axios = require("axios");
 const moment = require("moment");
@@ -38,8 +38,8 @@ var jobRef,
 
 // WEBFLOW INIT
 
-var webflow = new Webflow({
-  token: process.env.WEBFLOW_TOKEN,
+var webflow = new WebflowClient({
+  accessToken: process.env.WEBFLOW_TOKEN,
   version: "1.0.0",
   headers: {
     "User-Agent": "My Webflow App / 1.0",
@@ -314,7 +314,7 @@ async function checkWebflowItem() {
 
 async function createWebflowItem() {
   if (!exists) {
-    var url = `https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items?live=true`;
+    var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items?live=true`;
     var options = {
       method: "POST",
       headers: {
@@ -367,7 +367,7 @@ async function createWebflowItem() {
 
 async function createTempsJob() {
   if (!exists && sectorId === "Social Care") {
-    var url = `https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items?live=true`;
+    var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items?live=true`;
     var options = {
       method: "POST",
       headers: {
@@ -475,7 +475,7 @@ app.post("/api/broadbean", async (req, res) => {
 cron.schedule("0 0 * * *", async () => {
   try {
     await archiveItemsOlderThan28Days(
-      `https://api.webflow.com/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`,
+      `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`,
       process.env.WEBFLOW_TOKEN
     );
     console.log("Archived items older than 28 days - CB");
@@ -485,7 +485,7 @@ cron.schedule("0 0 * * *", async () => {
 
   try {
     await archiveItemsOlderThan28Days(
-      `https://api.webflow.com/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`,
+      `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_T4C_COLLECTION_ID}/items`,
       process.env.WEBFLOW_TOKEN_T4C
     );
     console.log("Archived items older than 28 days - T4C");
