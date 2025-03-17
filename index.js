@@ -332,7 +332,10 @@ async function createWebflowItem() {
     var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items?live=true`;
 
     const itemSlug =
-      jobTitle.replace(/\s+/g, "-").toLowerCase() +
+      jobTitle
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9-]/g, "")
+        .toLowerCase() +
       "-" +
       Math.floor(Math.random() * 1000);
 
