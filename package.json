@@ -21,6 +21,6 @@
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "node-cron": "^3.0.2",
-    "webflow-api": "^1.2.2"
+    "webflow-api": "^3.3.4"
   }
 }
