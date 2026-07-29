@@ -3,7 +3,6 @@ var express = require("express");
 var app = express();
 require("dotenv").config();
 var https = require("https");
-var WebflowClient = require("webflow-api");
 const cron = require("node-cron");
 const axios = require("axios");
 const moment = require("moment");
@@ -36,13 +35,6 @@ var jobRef,
   coburgJobs,
   today;
 
-// WEBFLOW INIT
-
-var webflow = new WebflowClient({
-  accessToken: process.env.WEBFLOW_TOKEN,
-  accept: "application/json",
-  "content-type": "application/json",
-});
 
 function getToken() {
   // get new access token using refresh
