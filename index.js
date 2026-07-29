@@ -321,7 +321,7 @@ async function checkWebflowItem() {
 
 async function createWebflowItem() {
   if (!exists) {
-    var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items?live=true`;
+    var url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`;
 
     const itemSlug =
       jobTitle
@@ -365,8 +365,8 @@ async function createWebflowItem() {
 
     return fetch(url, options)
       .then((res) => res.json())
-      .then((json) => {
-        publishWebflowItem(json.id);
+      .then(async (json) => {
+        await publishWebflowItem(json.id);
 
         return {
           url: itemSlug,
@@ -375,7 +375,7 @@ async function createWebflowItem() {
         };
       })
       .catch((err) => {
-        console.error("error:" + err);
+        console.error("Error creating or publishing Webflow item:", err);
         return null;
       });
   }
@@ -443,32 +443,40 @@ async function createTempsJob() {
 // PUBLISH WEBFLOW ITEM
 
 async function publishWebflowItem(itemId) {
-  try {
-    const url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items/publish`;
-    const options = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
-      },
-      body: JSON.stringify({
-        itemIds: [itemId],
-      }),
-    };
+  const url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items/publish`;
+  const options = {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
+    },
+    body: JSON.stringify({
+      itemIds: [itemId],
+    }),
+  };
 
-    await fetch(url, options)
-      .then((res) => res.json())
-      .then((json) => {
-        return "Published successfully";
-      })
-      .catch((err) => {
-        console.error("error:" + err);
-        return null;
-      });
-  } catch (error) {
-    throw new Error("Error publishing collection item:", error);
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error(`Webflow publish HTTP error for item ${itemId}: status ${response.status} - ${text}`);
+    throw new Error(`Webflow publish HTTP error for item ${itemId}: status ${response.status}`);
   }
+
+  const json = await response.json();
+
+  if (json.errors && json.errors.length > 0) {
+    console.error(`Webflow publish returned errors for item ${itemId}:`, JSON.stringify(json.errors));
+    throw new Error(`Webflow publish returned errors for item ${itemId}: ${JSON.stringify(json.errors)}`);
+  }
+
+  if (!json.publishedItemIds || !json.publishedItemIds.includes(itemId)) {
+    console.error(`Webflow publish did not confirm item ${itemId}; publishedItemIds:`, JSON.stringify(json.publishedItemIds));
+    throw new Error(`Webflow publish did not confirm item ${itemId} was published`);
+  }
+
+  console.log(`Webflow item ${itemId} published successfully`);
 }
 
 // BROADBEAN
