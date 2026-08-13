@@ -60,6 +60,10 @@ function getRegionFieldData(town) {
   };
 }
 
+function extractWebflowItemId(payload) {
+  return payload?.id || payload?._id || payload?.item?.id || payload?.item?._id || null;
+}
+
 
 function getToken() {
   // get new access token using refresh
@@ -390,9 +394,28 @@ async function createWebflowItem() {
     };
 
     return fetch(url, options)
-      .then((res) => res.json())
-      .then(async (json) => {
-        await publishWebflowItem(json.id);
+      .then(async (response) => {
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            `Webflow create HTTP error: status ${response.status} - ${JSON.stringify(json)}`
+          );
+        }
+
+        const itemId = extractWebflowItemId(json);
+
+        if (!itemId) {
+          throw new Error(
+            `Webflow create response missing item id: ${JSON.stringify(json)}`
+          );
+        }
+
+        await publishWebflowItem(
+          itemId,
+          process.env.WEBFLOW_CB_COLLECTION_ID,
+          process.env.WEBFLOW_TOKEN
+        );
         const jobUrl = buildCoburgJobUrl(itemSlug);
 
         try {
@@ -404,7 +427,7 @@ async function createWebflowItem() {
         return {
           url: itemSlug,
           jobUrl,
-          id: json.id,
+          id: itemId,
           site: "coburgbanks",
         };
       })
@@ -457,13 +480,32 @@ async function createTempsJob() {
     };
 
     return fetch(url, options)
-      .then((res) => res.json())
-      .then((json) => {
-        publishWebflowItem(json.id);
+      .then(async (response) => {
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            `Webflow create HTTP error (temps): status ${response.status} - ${JSON.stringify(json)}`
+          );
+        }
+
+        const itemId = extractWebflowItemId(json);
+
+        if (!itemId) {
+          throw new Error(
+            `Webflow create response missing item id (temps): ${JSON.stringify(json)}`
+          );
+        }
+
+        await publishWebflowItem(
+          itemId,
+          process.env.WEBFLOW_T4C_COLLECTION_ID,
+          process.env.WEBFLOW_TOKEN_T4C
+        );
 
         return {
           url: itemSlug,
-          id: json.id,
+          id: itemId,
           site: "temps4care",
         };
       })
@@ -476,14 +518,18 @@ async function createTempsJob() {
 
 // PUBLISH WEBFLOW ITEM
 
-async function publishWebflowItem(itemId) {
-  const url = `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items/publish`;
+async function publishWebflowItem(itemId, collectionId, webflowToken) {
+  if (!itemId) {
+    throw new Error("Webflow publish called without item id");
+  }
+
+  const url = `https://api.webflow.com/v2/collections/${collectionId}/items/publish`;
   const options = {
     method: "POST",
     headers: {
       accept: "application/json",
       "content-type": "application/json",
-      authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
+      authorization: `Bearer ${webflowToken}`,
     },
     body: JSON.stringify({
       itemIds: [itemId],
