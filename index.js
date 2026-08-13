@@ -6,6 +6,10 @@ var https = require("https");
 const cron = require("node-cron");
 const axios = require("axios");
 const moment = require("moment");
+const { notifyGoogle } = require("./lib/indexing");
+const { regionForTown } = require("./lib/regions");
+
+const COBURG_JOBS_BASE_URL = "https://www.coburgbanks.co.uk/job-opportunities";
 
 var firstName,
   lastName,
@@ -34,6 +38,27 @@ var jobRef,
   coburgJobCollection,
   coburgJobs,
   today;
+
+function buildCoburgJobUrl(slug) {
+  return `${COBURG_JOBS_BASE_URL}/${slug}`;
+}
+
+function getItemSlug(item) {
+  return item?.fieldData?.slug || item?.slug || null;
+}
+
+function getRegionFieldData(town) {
+  const region = regionForTown(town);
+  const regionFieldSlug = process.env.WEBFLOW_REGION_FIELD_SLUG;
+
+  if (!region || !regionFieldSlug) {
+    return {};
+  }
+
+  return {
+    [regionFieldSlug]: region,
+  };
+}
 
 
 function getToken() {
@@ -359,6 +384,7 @@ async function createWebflowItem() {
           "job-reference-number": jobRef,
           "date-published": today,
           slug: itemSlug,
+          ...getRegionFieldData(locationId),
         },
       }),
     };
@@ -367,9 +393,17 @@ async function createWebflowItem() {
       .then((res) => res.json())
       .then(async (json) => {
         await publishWebflowItem(json.id);
+        const jobUrl = buildCoburgJobUrl(itemSlug);
+
+        try {
+          await notifyGoogle(jobUrl, "URL_UPDATED");
+        } catch (error) {
+          console.error("Indexing ping failed for", jobUrl, error.message);
+        }
 
         return {
           url: itemSlug,
+          jobUrl,
           id: json.id,
           site: "coburgbanks",
         };
@@ -533,7 +567,7 @@ app.post("/api/broadbean", async (req, res) => {
 
   res.json({
     message: "Job data received successfully!",
-    url: "https://www.coburgbanks.co.uk/job-opportunities/" + url,
+    url: buildCoburgJobUrl(url),
   });
 });
 
@@ -541,7 +575,8 @@ cron.schedule("0 0 * * *", async () => {
   try {
     await archiveItemsOlderThan28Days(
       `https://api.webflow.com/v2/collections/${process.env.WEBFLOW_CB_COLLECTION_ID}/items`,
-      process.env.WEBFLOW_TOKEN
+      process.env.WEBFLOW_TOKEN,
+      COBURG_JOBS_BASE_URL
     );
     console.log("Archived items older than 28 days - CB");
   } catch (error) {
@@ -561,7 +596,7 @@ cron.schedule("0 0 * * *", async () => {
 
 // WEBFLOW - REMOVE AFTER 28 DAYS
 
-async function archiveItemsOlderThan28Days(link, wft) {
+async function archiveItemsOlderThan28Days(link, wft, siteBaseUrl = null) {
   try {
     const url = link;
     const headers = {
@@ -580,6 +615,18 @@ async function archiveItemsOlderThan28Days(link, wft) {
       const publishedOn = new Date(item.published_on);
       if (publishedOn <= twentyEightDaysAgo) {
         await archiveItem(item._id, link, wft);
+
+        if (siteBaseUrl) {
+          const slug = getItemSlug(item);
+          if (slug) {
+            const jobUrl = `${siteBaseUrl}/${slug}`;
+            try {
+              await notifyGoogle(jobUrl, "URL_DELETED");
+            } catch (error) {
+              console.error("Indexing delete ping failed for", jobUrl, error.message);
+            }
+          }
+        }
       }
     }
   } catch (error) {
@@ -589,11 +636,11 @@ async function archiveItemsOlderThan28Days(link, wft) {
 
 async function archiveItem(itemId, link, wft) {
   try {
-    const url = link + itemId;
+    const url = `${link}/${itemId}`;
     const headers = {
       accept: "application/json",
       "content-type": "application/json",
-      authorization: `Bearer ${process.env.WEBFLOW_TOKEN}`,
+      authorization: `Bearer ${wft}`,
     };
     const data = {
       fields: {
